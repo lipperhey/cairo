@@ -7,7 +7,7 @@ use cairo_lang_diagnostics::{DiagnosticNote, DiagnosticsBuilder};
 use cairo_lang_semantic as semantic;
 use cairo_lang_semantic::items::function_with_body::FunctionWithBodySemantic;
 use cairo_lang_semantic::items::module_type_alias::ModuleTypeAliasSemantic;
-use cairo_lang_semantic::test_utils::{setup_test_expr, setup_test_function, setup_test_module};
+use cairo_lang_semantic::test_utils::{setup_test_expr, setup_test_function_ex, setup_test_module};
 use cairo_lang_syntax::node::{Terminal, TypedStablePtr};
 use cairo_lang_test_utils::parse_test_file::TestRunnerResult;
 use cairo_lang_test_utils::verify_diagnostics_expectation;
@@ -67,11 +67,13 @@ fn test_function_lowering(
     args: &OrderedHashMap<String, String>,
 ) -> TestRunnerResult {
     let db = &mut LoweringDatabaseForTesting::default();
-    let (test_function, semantic_diagnostics) = setup_test_function(
+    let (test_function, semantic_diagnostics) = setup_test_function_ex(
         db,
         &inputs["function"],
         &inputs["function_name"],
         &inputs["module_code"],
+        inputs.get("crate_settings").map(String::as_str),
+        None,
     )
     .split();
     let function_id =
