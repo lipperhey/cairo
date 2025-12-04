@@ -17,7 +17,7 @@ use itertools::chain;
 use salsa::Database;
 
 use crate::Variant;
-use crate::corelib::{self, core_submodule, get_submodule};
+use crate::corelib;
 use crate::expr::inference::InferenceId;
 use crate::items::constant::ConstantSemantic;
 use crate::items::enm::EnumSemantic;
@@ -375,10 +375,8 @@ pub fn visible_importables_from_module<'db>(
     module_id: ModuleId<'db>,
 ) -> Option<Arc<OrderedHashMap<ImportableId<'db>, String>>> {
     let current_crate_id = module_id.owning_crate(db);
-    let prelude_submodule_name =
-        db.crate_config(current_crate_id)?.settings.edition.prelude_submodule_name(db);
-    let core_prelude_submodule = core_submodule(db, SmolStrId::from(db, "prelude"));
-    let prelude_submodule = get_submodule(db, core_prelude_submodule, prelude_submodule_name)?;
+    let prelude_submodule =
+        db.get_prelude_submodule(&db.crate_config(current_crate_id)?.settings)?;
 
     let mut module_visible_importables = Vec::new();
     // Collect importables from the prelude.
